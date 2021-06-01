@@ -6,6 +6,10 @@ import java.math.BigDecimal
 
 interface OrderBook {
 
+    /**
+     * Generates and places the order for the specified data
+     * @see Order
+     */
     fun place(
         clientId: Long,
         action: OrderAction,
@@ -15,14 +19,20 @@ interface OrderBook {
     ): Order
 
     /**
-     * Only the order's price or quantity can be updated
+     * Updates the order's price and size.
+     * @see Order
      */
     fun update(
         orderId: Long,
         price: BigDecimal,
         size: BigDecimal,
-    ): Order
+    ): Order?
 
-    fun cancel(orderId: Long): Order
+    /**
+     * Cancels an active order, identifying it by it's id.
+     * @see Order
+     */
+    fun cancel(orderId: Long): Order?
 
+    fun findById(orderId: Long): Order?
 }

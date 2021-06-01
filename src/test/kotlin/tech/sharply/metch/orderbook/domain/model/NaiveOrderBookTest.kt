@@ -12,7 +12,6 @@ import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import tech.sharply.metch.orderbook.util.generateBigDecimal
-import tech.sharply.metch.orderbook.util.generateLong
 import tech.sharply.metch.orderbook.util.generateOrderAction
 import tech.sharply.metch.orderbook.util.generateOrderType
 import java.math.BigDecimal
@@ -51,12 +50,60 @@ internal class NaiveOrderBookTest {
 
     @Test
     fun placeMany() {
+        val clients = 1..5
         for (i in 1..1_000) {
             orderBook.place(
-                generateLong(), generateOrderAction(), generateBigDecimal(),
-                generateBigDecimal(), generateOrderType()
+                clients.random().toLong(),
+                generateOrderAction(),
+                generateBigDecimal(),
+                generateBigDecimal(),
+                generateOrderType()
             )
         }
+    }
+
+    @Test
+    fun givenTwoCompatibleOrders_testTradePriceAndSizeAreCorrect() {
+        val trades = ArrayList<Trade>()
+        this.orderBook = NaiveOrderBook(object : OrderBookEventsHandler {
+            override fun handle(event: OrderPlacedEvent) {
+            }
+
+            override fun handle(event: OrderUpdatedEvent) {
+            }
+
+            override fun handle(event: OrderCancelledEvent) {
+            }
+
+            override fun handle(event: TradeClosedEvent) {
+                trades.add(event.trade)
+            }
+        })
+
+        val bid1 = orderBook.place(
+            1,
+            OrderAction.BID,
+            BigDecimal("30"),
+            BigDecimal("100"),
+            OrderType.DAY
+        )
+
+        Thread.sleep(5)
+
+        val ask1 = orderBook.place(
+            2,
+            OrderAction.ASK,
+            BigDecimal("25"),
+            BigDecimal("70"),
+            OrderType.DAY
+        )
+
+        val trade = trades[0]
+        assertEquals(trade.price, bid1.price)
+        assertEquals(trade.size, ask1.size)
+
+        // check ask was removed
+
     }
 
     @Test
@@ -73,7 +120,6 @@ internal class NaiveOrderBookTest {
             }
 
             override fun handle(event: TradeClosedEvent) {
-                trades.add(event.trade)
                 log.info("Trade closed: " + event.trade.toString())
             }
         })
@@ -100,7 +146,7 @@ internal class NaiveOrderBookTest {
             BigDecimal("100"),
             OrderType.DAY
         )
-        // o1 & o2 should not match because o1.client == o2.client
+        // bid1 & ask1 should not match because bid1.client == ask1.client
 
         // o3
         val ask2 = orderBook.place(
@@ -110,7 +156,7 @@ internal class NaiveOrderBookTest {
             BigDecimal("100"),
             OrderType.DAY
         )
-        // o1 & o3 should not match because o1.price < o3.price
+        // bid1 & ask2 should not match because bid1.price < ask2.price
 
         // o4
         val ask3 = orderBook.place(

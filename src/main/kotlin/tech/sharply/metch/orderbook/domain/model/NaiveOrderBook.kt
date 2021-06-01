@@ -179,9 +179,9 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
     /**
      * Allows the order's price and size to be updated.
      */
-    override fun update(orderId: Long, price: BigDecimal, @DecimalMin("0.0000000001") size: BigDecimal): Order {
+    override fun update(orderId: Long, price: BigDecimal, @DecimalMin("0.0000000001") size: BigDecimal): Order? {
         if (!ordersById.containsKey(orderId)) {
-            throw IllegalArgumentException("Order not found for orderId: $orderId")
+            return null
         }
 
         val order = ordersById[orderId]!!
@@ -205,9 +205,9 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
      * Cancels an active order.
      * If the order is not found then an IllegalArgumentException is thrown.
      */
-    override fun cancel(orderId: Long): Order {
+    override fun cancel(orderId: Long): Order? {
         if (!ordersById.containsKey(orderId)) {
-            throw IllegalArgumentException("Order not found for orderId: $orderId")
+            return null
         }
 
         val order = ordersById[orderId]
@@ -222,6 +222,10 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         handle(OrderCancelledEvent(this, order))
 
         return order
+    }
+
+    override fun findById(orderId: Long): Order? {
+        return ordersById[orderId]
     }
 
     private fun handle(event: ApplicationEvent) {
