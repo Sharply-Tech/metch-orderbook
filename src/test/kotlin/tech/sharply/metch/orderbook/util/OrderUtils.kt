@@ -27,9 +27,13 @@ fun generateOrderType(): OrderType {
 }
 
 fun generateLong(): Long {
+    return generateLong(10_000)
+}
+
+fun generateLong(bound: Int): Long {
     val rnd = Random()
 
-    return rnd.nextInt(10_000).toLong()
+    return rnd.nextInt(bound).toLong()
 }
 
 fun generateBigDecimal(@Min(1) bound: Int): BigDecimal {

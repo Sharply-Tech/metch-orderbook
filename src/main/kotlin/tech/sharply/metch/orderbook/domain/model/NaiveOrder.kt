@@ -12,14 +12,55 @@ data class NaiveOrder(
     override val action: OrderAction,
     override val price: BigDecimal,
     override val size: BigDecimal,
+    override val filled: BigDecimal,
     override val type: OrderType,
     override val createdAt: LocalDateTime,
-    override val modifiedAt: LocalDateTime
+    override val modifiedAt: LocalDateTime,
 ) : Order {
+
+    companion object {
+
+        fun withPrice(order: NaiveOrder, price: BigDecimal): NaiveOrder {
+            return NaiveOrder(
+                order.id,
+                order.clientId,
+                order.action,
+                price,
+                order.size,
+                order.filled,
+                order.type,
+                order.createdAt,
+                order.modifiedAt
+            )
+        }
+
+        fun withSize(order: NaiveOrder, size: BigDecimal): NaiveOrder {
+            return NaiveOrder(
+                order.id,
+                order.clientId,
+                order.action,
+                order.price,
+                size,
+                order.filled,
+                order.type,
+                order.createdAt,
+                order.modifiedAt
+            )
+        }
+
+    }
+
+    override fun withPrice(price: BigDecimal): NaiveOrder {
+        return withPrice(this, price)
+    }
+
+    override fun withSize(size: BigDecimal): NaiveOrder {
+        return withSize(this, size)
+    }
 
     override fun toString(): String {
         return """
-            ImmutableOrder: {
+            NaiveOrder: {
                 id: $id,
                 clientId: $clientId,
                 action: $action,

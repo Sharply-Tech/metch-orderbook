@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
+import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import tech.sharply.metch.orderbook.util.generateBigDecimal
@@ -20,15 +21,19 @@ internal class NaiveOrderBookTest {
 
     private var orderBook: OrderBook = NaiveOrderBook(object : OrderBookEventsHandler {
         override fun handle(event: OrderPlacedEvent) {
-            log.info("Order created: " + event.order.toString())
+//            log.info("Order created: " + event.order.toString())
         }
 
         override fun handle(event: OrderUpdatedEvent) {
-            log.info("Order updated: " + event.order.toString())
+//            log.info("Order updated: " + event.order.toString())
         }
 
         override fun handle(event: OrderCancelledEvent) {
-            log.info("Order cancelled: " + event.order.toString())
+//            log.info("Order cancelled: " + event.order.toString())
+        }
+
+        override fun handle(event: TradeClosedEvent) {
+            log.info("Trade closed: " + event.trade.toString())
         }
     })
 
