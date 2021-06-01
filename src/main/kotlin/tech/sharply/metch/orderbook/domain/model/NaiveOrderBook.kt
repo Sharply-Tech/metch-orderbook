@@ -1,28 +1,54 @@
 package tech.sharply.metch.orderbook.domain.model
 
+import org.hibernate.validator.internal.util.stereotypes.Immutable
+import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.collections.HashMap
 import kotlin.system.measureTimeMillis
 
-class NaiveOrderBook : OrderBook {
+class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderBook {
 
     private val bidOrders = TreeSet<Order>()
     private val askOrders = TreeSet<Order>()
     private val ordersById = HashMap<Long, Order>()
 
-    override fun place(order: Order): Order {
-        TODO("Try to match instantly before adding it to any collection")
+    private val orderIdSequence = AtomicLong(1)
+
+    override fun place(
+        clientId: Long,
+        action: OrderAction,
+        price: BigDecimal,
+        size: BigDecimal,
+        type: OrderType
+    ): Order {
+        val order = ImmutableOrder(
+            orderIdSequence.getAndIncrement(),
+            clientId,
+            action,
+            price,
+            size,
+            type,
+            LocalDateTime.now(),
+            LocalDateTime.now()
+        )
+
         ordersById[order.id] = order
-        if (order.action == OrderAction.ASK) {
-            askOrders.add(order)
-        } else {
+        if (action == OrderAction.BID) {
             bidOrders.add(order)
+        } else {
+            askOrders.add(order)
         }
+
+        eventsHandler.handle(OrderPlacedEvent(this, order))
+
+        return order
     }
 
-    override fun update(order: Order): Order {
+    override fun update(orderId: Long, price: BigDecimal, size: BigDecimal): Order {
         TODO("Not yet implemented")
     }
 

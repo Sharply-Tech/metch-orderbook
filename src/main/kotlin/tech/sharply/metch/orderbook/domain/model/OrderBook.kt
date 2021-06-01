@@ -1,10 +1,25 @@
 package tech.sharply.metch.orderbook.domain.model
 
+import java.math.BigDecimal
+
 interface OrderBook {
 
-    fun place(order: Order): Order
+    fun place(
+        clientId: Long,
+        action: OrderAction,
+        price: BigDecimal,
+        size: BigDecimal,
+        type: OrderType,
+    ): Order
 
-    fun update(order: Order): Order
+    /**
+     * Only the order's price or quantity can be updated
+     */
+    fun update(
+        orderId: Long,
+        price: BigDecimal,
+        size: BigDecimal,
+    ): Order
 
     fun cancel(orderId: Long): Order
 
