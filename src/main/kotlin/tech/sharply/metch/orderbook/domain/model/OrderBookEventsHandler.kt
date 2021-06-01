@@ -18,9 +18,10 @@ interface OrderBookEventsHandler {
 
     fun handle(event: ApplicationEvent) {
         when (event) {
-            is OrderPlacedEvent -> return handle(event as OrderPlacedEvent)
-            is OrderUpdatedEvent -> return handle(event as OrderUpdatedEvent)
-            is OrderCancelledEvent -> return handle(event as OrderCancelledEvent)
+            is OrderPlacedEvent -> return handle(event)
+            is OrderUpdatedEvent -> return handle(event)
+            is OrderCancelledEvent -> return handle(event)
+            is TradeClosedEvent -> return handle(event)
         }
     }
 }

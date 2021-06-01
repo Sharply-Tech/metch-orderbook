@@ -1,5 +1,7 @@
 package tech.sharply.metch.orderbook.domain.model
 
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -50,9 +52,100 @@ internal class NaiveOrderBookTest {
     @Test
     fun placeMany() {
         for (i in 1..1_000) {
-            orderBook.place(generateLong(), generateOrderAction(), generateBigDecimal(),
-                generateBigDecimal(), generateOrderType())
+            orderBook.place(
+                generateLong(), generateOrderAction(), generateBigDecimal(),
+                generateBigDecimal(), generateOrderType()
+            )
         }
+    }
+
+    @Test
+    fun givenSetOfOrders_testMatchesAreCorrectlyIdentifiedAndClosed() {
+        val trades = ArrayList<Trade>()
+        this.orderBook = NaiveOrderBook(object : OrderBookEventsHandler {
+            override fun handle(event: OrderPlacedEvent) {
+            }
+
+            override fun handle(event: OrderUpdatedEvent) {
+            }
+
+            override fun handle(event: OrderCancelledEvent) {
+            }
+
+            override fun handle(event: TradeClosedEvent) {
+                trades.add(event.trade)
+                log.info("Trade closed: " + event.trade.toString())
+            }
+        })
+
+        val clients = HashMap<String, Long>()
+        clients["COSMIN"] = 1
+        clients["CEZAR"] = 2
+        clients["RUX"] = 3
+
+        // o1
+        val bid1 = orderBook.place(
+            clients["COSMIN"]!!,
+            OrderAction.BID,
+            BigDecimal("90"),
+            BigDecimal("100"),
+            OrderType.DAY
+        )
+
+        // o2
+        val ask1 = orderBook.place(
+            clients["COSMIN"]!!,
+            OrderAction.ASK,
+            BigDecimal("80"),
+            BigDecimal("100"),
+            OrderType.DAY
+        )
+        // o1 & o2 should not match because o1.client == o2.client
+
+        // o3
+        val ask2 = orderBook.place(
+            clients["CEZAR"]!!,
+            OrderAction.ASK,
+            BigDecimal("91"),
+            BigDecimal("100"),
+            OrderType.DAY
+        )
+        // o1 & o3 should not match because o1.price < o3.price
+
+        // o4
+        val ask3 = orderBook.place(
+            clients["CEZAR"]!!,
+            OrderAction.ASK,
+            BigDecimal("90"),
+            BigDecimal("120"),
+            OrderType.DAY
+        )
+
+        // bid1 & ask3 should match
+
+        val bid2 = orderBook.place(
+            clients["RUX"]!!,
+            OrderAction.BID,
+            BigDecimal("81"),
+            BigDecimal("120"),
+            OrderType.DAY
+        )
+
+        assertEquals(2, trades.size)
+
+        // bid2 & ask1 should match
+
+        // bid1 & ask3
+        val firstTrade: Trade = trades[0]
+        Assertions.assertNotNull(firstTrade)
+        assertEquals(bid1.id, firstTrade.bid.id)
+        assertEquals(ask3.id, firstTrade.ask.id)
+
+        // bid2 & ask1
+        val secondTrade: Trade = trades[1]
+        Assertions.assertNotNull(firstTrade)
+        assertEquals(bid2.id, secondTrade.bid.id)
+        assertEquals(ask1.id, secondTrade.ask.id)
     }
 
     // TODO: Implement JMH benchmarks
