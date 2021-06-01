@@ -1,6 +1,10 @@
 package tech.sharply.metch.orderbook.domain.model
 
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
+import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
+import tech.sharply.metch.orderbook.domain.model.types.OrderAction
+import tech.sharply.metch.orderbook.domain.model.types.OrderType
+import tech.sharply.metch.orderbook.domain.model.types.OrdersComparator
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -21,7 +25,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         size: BigDecimal,
         type: OrderType
     ): Order {
-        val order = ImmutableOrder(
+        val order = NaiveOrder(
             orderIdSequence.getAndIncrement(),
             clientId,
             action,
@@ -45,38 +49,52 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
     }
 
     override fun update(orderId: Long, price: BigDecimal, size: BigDecimal): Order {
-        TODO("Not yet implemented")
+        if (!ordersById.containsKey(orderId)) {
+            throw IllegalArgumentException("Order not found for orderId: $orderId");
+        }
+
+        val order = ordersById[orderId]!!
+
+        val updatedOrder = NaiveOrder(
+            order.id,
+            order.clientId,
+            order.action,
+            price,
+            size,
+            order.type,
+            order.createdAt,
+            order.modifiedAt
+        )
+
+        ordersById[order.id] = updatedOrder
+        if (updatedOrder.action == OrderAction.BID) {
+            bidOrders.add(updatedOrder)
+        } else {
+            askOrders.add(updatedOrder)
+        }
+
+        eventsHandler.handle(OrderUpdatedEvent(this, order))
+
+        return updatedOrder
     }
 
     override fun cancel(orderId: Long): Order {
-        TODO("Not yet implemented")
+        if (!ordersById.containsKey(orderId)) {
+            throw IllegalArgumentException("Order not found for orderId: $orderId");
+        }
+
+        val order = ordersById[orderId]
+
+        if (order!!.action == OrderAction.BID) {
+            bidOrders.remove(order)
+        } else {
+            askOrders.remove(order)
+        }
+        ordersById.remove(orderId)
+
+        eventsHandler.handle(OrderPlacedEvent(this, order))
+
+        return order
     }
 }
 
-class ImmutableOrder(
-    override val id: Long,
-    override val clientId: Long,
-    override val action: OrderAction,
-    override val price: BigDecimal,
-    override val size: BigDecimal,
-    override val type: OrderType,
-    override val createdAt: LocalDateTime,
-    override val modifiedAt: LocalDateTime
-) : Order {
-
-    override fun toString(): String {
-        return """
-            ImmutableOrder: {
-                id: $id,
-                clientId: $clientId,
-                action: $action,
-                price: $price,
-                size: $size,
-                type: $type,
-                createdAt: $createdAt,
-                modifiedAt: $modifiedAt
-            }
-        """.trimIndent()
-    }
-
-}

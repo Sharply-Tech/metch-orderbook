@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
+import tech.sharply.metch.orderbook.domain.model.types.OrderAction
+import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import tech.sharply.metch.orderbook.util.generateBigDecimal
 import tech.sharply.metch.orderbook.util.generateLong
 import tech.sharply.metch.orderbook.util.generateOrderAction

@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.types
 
 /**
  * https://www.investopedia.com/investing/basics-trading-stock-know-your-orders/

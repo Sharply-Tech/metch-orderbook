@@ -1,8 +1,7 @@
 package tech.sharply.metch.orderbook.util
 
-import tech.sharply.metch.orderbook.domain.model.ImmutableOrder
-import tech.sharply.metch.orderbook.domain.model.OrderAction
-import tech.sharply.metch.orderbook.domain.model.OrderType
+import tech.sharply.metch.orderbook.domain.model.types.OrderAction
+import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
