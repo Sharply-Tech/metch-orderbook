@@ -177,6 +177,7 @@ internal class NaiveOrderBookTest {
             OrderType.DAY
         )
 
+
         assertEquals(2, trades.size)
 
         // bid2 & ask1 should match

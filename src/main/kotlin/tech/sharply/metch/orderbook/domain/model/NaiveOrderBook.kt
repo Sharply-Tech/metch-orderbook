@@ -13,6 +13,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
+import java.util.stream.Collectors
 import javax.validation.constraints.DecimalMin
 
 /**
@@ -228,11 +229,27 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         return ordersById[orderId]
     }
 
+    override fun findBestBids(count: Long): Collection<Order> {
+        return bidOrders.stream()
+            .filter { order -> order != null }
+            .map { order -> order!! }
+            .limit(count)
+            .collect(Collectors.toList())
+    }
+
+    override fun findBestAsks(count: Long): Collection<Order> {
+        return askOrders.stream()
+            .filter { order -> order != null }
+            .map { order -> order!! }
+            .limit(count)
+            .collect(Collectors.toList())
+    }
+
     private fun handle(event: ApplicationEvent) {
         eventsHandler.handle(event)
 
         // trigger try match on order events
-        if (event is OrderEvent) {
+        if (event is OrderEvent && event !is OrderCancelledEvent) {
             this.tryMatch(event.order as NaiveOrder)
         }
     }

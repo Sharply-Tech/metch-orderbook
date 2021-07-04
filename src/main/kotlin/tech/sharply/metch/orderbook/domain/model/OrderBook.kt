@@ -35,4 +35,14 @@ interface OrderBook {
     fun cancel(orderId: Long): Order?
 
     fun findById(orderId: Long): Order?
+
+    /**
+     * Finds the best [count] bid orders.
+     */
+    fun findBestBids(count: Long): Collection<Order>
+
+    /**
+     * Finds the best [count] ask orders.
+     */
+    fun findBestAsks(count: Long): Collection<Order>
 }
