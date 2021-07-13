@@ -175,26 +175,34 @@ internal class NaiveOrderBookTest {
             OrderType.DAY
         )
 
+        // bid5 & ask2 should match tradeSize = 100, bid.remaining = 20, ask.filled = true
+
+        // bid5 & ask4 should match tradeSize = 20, bid.filled = true, ask.filled = true
+
         for (trade in trades) {
             log.info("trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}), " +
-                    "bid(id${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}), tx size=${trade.size}," +
+                    "bid(id=${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}), tx size=${trade.size}," +
                     "tx price=${trade.price}")
         }
-        assertEquals(4, trades.size)
+        assertEquals(3, trades.size)
 
-        // bid2 & ask1 should match
-
-        // bid1 & ask3
+        // bid1 & ask4
         val firstTrade: Trade = trades[0]
         Assertions.assertNotNull(firstTrade)
         assertEquals(bid1.id, firstTrade.bid.id)
         assertEquals(ask4.id, firstTrade.ask.id)
 
-        // bid2 & ask1
+        // bid5 & ask1
         val secondTrade: Trade = trades[1]
-        Assertions.assertNotNull(firstTrade)
+        Assertions.assertNotNull(secondTrade)
         assertEquals(bid5.id, secondTrade.bid.id)
         assertEquals(ask2.id, secondTrade.ask.id)
+
+        // bid5 & ask4
+        val thirdTrade: Trade = trades[2]
+        Assertions.assertNotNull(thirdTrade)
+        assertEquals(bid5.id, thirdTrade.bid.id)
+        assertEquals(ask4.id, thirdTrade.ask.id)
     }
 
     // TODO: Implement JMH benchmarks
