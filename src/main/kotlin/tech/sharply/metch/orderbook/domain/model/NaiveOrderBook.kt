@@ -203,7 +203,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         return updatedOrder
     }
 
-    fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): Order? {
+    private fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): Order? {
         if (!ordersById.containsKey(orderId)) {
             return null
         }
@@ -211,7 +211,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         val order = ordersById[orderId]!!
 
         if (order.remainingSize() < by) {
-            throw IllegalArgumentException("Can only fill order: ${orderId} by ${order.remainingSize()}")
+            throw IllegalArgumentException("Can only fill order: $orderId by ${order.remainingSize()}")
         }
 
         val updatedOrder = order.withFilled(order.filled.add(by))
@@ -273,6 +273,12 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             .collect(Collectors.toList())
     }
 
+    // TODO!!!
+    // handling events async is bound to fail in this case because i can't seem to figure out how to orchestrate them to
+    // find another trade after the current one is closed.
+    // having events processed async seems so much more natural
+    // Also: because fill() triggers OrderUpdatedEvent it causes the orderbook the find another trading situation before
+    // the current one is finished processing.
     private fun handle(event: ApplicationEvent) {
         eventsHandler.handle(event)
 
