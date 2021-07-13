@@ -138,26 +138,26 @@ internal class NaiveOrderBookTest {
             OrderType.DAY
         )
 
-        val ask1 = orderBook.place(
+        val ask2 = orderBook.place(
             clients["COSMIN"]!!,
             OrderAction.ASK,
             BigDecimal("80"),
             BigDecimal("100"),
             OrderType.DAY
         )
-        // bid1 & ask1 should not match because bid1.client == ask1.client
+        // bid1 & ask2 should not match because bid1.client == ask2.client
 
-        val ask2 = orderBook.place(
+        val ask3 = orderBook.place(
             clients["CEZAR"]!!,
             OrderAction.ASK,
             BigDecimal("91"),
             BigDecimal("100"),
             OrderType.DAY
         )
-        // bid1 & ask2 should not match because bid1.price < ask2.price
+        // bid1 & ask3 should not match because bid1.price < ask3.price
 
         // o4
-        val ask3 = orderBook.place(
+        val ask4 = orderBook.place(
             clients["CEZAR"]!!,
             OrderAction.ASK,
             BigDecimal("90"),
@@ -165,9 +165,9 @@ internal class NaiveOrderBookTest {
             OrderType.DAY
         )
 
-        // bid1 & ask3 should match
+        // bid1 & ask4 should match tradeSize = 100, bid.filled = true, ask.remainingSize = 20
 
-        val bid2 = orderBook.place(
+        val bid5 = orderBook.place(
             clients["RUX"]!!,
             OrderAction.BID,
             BigDecimal("91"),
@@ -180,7 +180,7 @@ internal class NaiveOrderBookTest {
                     "bid(id${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}), tx size=${trade.size}," +
                     "tx price=${trade.price}")
         }
-        assertEquals(2, trades.size)
+        assertEquals(4, trades.size)
 
         // bid2 & ask1 should match
 
@@ -188,13 +188,13 @@ internal class NaiveOrderBookTest {
         val firstTrade: Trade = trades[0]
         Assertions.assertNotNull(firstTrade)
         assertEquals(bid1.id, firstTrade.bid.id)
-        assertEquals(ask3.id, firstTrade.ask.id)
+        assertEquals(ask4.id, firstTrade.ask.id)
 
         // bid2 & ask1
         val secondTrade: Trade = trades[1]
         Assertions.assertNotNull(firstTrade)
-        assertEquals(bid2.id, secondTrade.bid.id)
-        assertEquals(ask1.id, secondTrade.ask.id)
+        assertEquals(bid5.id, secondTrade.bid.id)
+        assertEquals(ask2.id, secondTrade.ask.id)
     }
 
     // TODO: Implement JMH benchmarks

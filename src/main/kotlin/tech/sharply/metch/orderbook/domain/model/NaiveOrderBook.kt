@@ -191,8 +191,10 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         ordersById[order.id] = updatedOrder
         if (updatedOrder.action == OrderAction.BID) {
+            bidOrders.remove(order)
             bidOrders.add(updatedOrder)
         } else {
+            askOrders.remove(order)
             askOrders.add(updatedOrder)
         }
 
@@ -216,8 +218,10 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         ordersById[order.id] = updatedOrder
         if (updatedOrder.action == OrderAction.BID) {
+            bidOrders.remove(order)
             bidOrders.add(updatedOrder)
         } else {
+            askOrders.remove(order)
             askOrders.add(updatedOrder)
         }
 
