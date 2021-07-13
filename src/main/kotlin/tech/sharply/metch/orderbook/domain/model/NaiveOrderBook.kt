@@ -35,7 +35,6 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         var oppositeOrders: Set<Order?> = askOrders
         if (order.action == OrderAction.ASK) {
             oppositeOrders = bidOrders
-            // TODO: Look for a compatible bid order
         }
 
         var match: Order? = null
@@ -97,12 +96,12 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             throw IllegalArgumentException("the orders cannot have the same client!")
         }
 
-        val tradeSize = bid.size.min(ask.size)
+        val tradeSize = bid.remainingSize().min(ask.remainingSize())
 
         var bidFilled = false
         var askFilled = false
 
-        if (bid.size <= tradeSize) {
+        if (bid.remainingSize() <= tradeSize) {
             // remove the bid order
             ordersById.remove(bid.id)
             bidOrders.remove(bid)
@@ -110,7 +109,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             // fully traded
 //            eventsPublisher.publishEvent(OrderClosedEvent(this, bid, trade))
         }
-        if (ask.size <= tradeSize) {
+        if (ask.remainingSize() <= tradeSize) {
             // remove the ask order
             ordersById.remove(ask.id)
             askOrders.remove(ask)
@@ -118,10 +117,10 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         }
 
         if (!bidFilled) {
-            this.update(bid.id, bid.price, bid.size.subtract(tradeSize))
+            this.fill(bid.id, tradeSize)
         }
         if (!askFilled) {
-            this.update(ask.id, ask.price, ask.size.subtract(tradeSize))
+            this.fill(ask.id, tradeSize)
         }
 
 //        val tradePrice = if (bid.modifiedAt.isBefore(ask.modifiedAt)) bid.price else ask.price
@@ -189,6 +188,31 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         val updatedOrder = order.withPrice(price)
             .withSize(size)
+
+        ordersById[order.id] = updatedOrder
+        if (updatedOrder.action == OrderAction.BID) {
+            bidOrders.add(updatedOrder)
+        } else {
+            askOrders.add(updatedOrder)
+        }
+
+        handle(OrderUpdatedEvent(this, order))
+
+        return updatedOrder
+    }
+
+    fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): Order? {
+        if (!ordersById.containsKey(orderId)) {
+            return null
+        }
+
+        val order = ordersById[orderId]!!
+
+        if (order.remainingSize() < by) {
+            throw IllegalArgumentException("Can only fill order: ${orderId} by ${order.remainingSize()}")
+        }
+
+        val updatedOrder = order.withFilled(order.filled.add(by))
 
         ordersById[order.id] = updatedOrder
         if (updatedOrder.action == OrderAction.BID) {

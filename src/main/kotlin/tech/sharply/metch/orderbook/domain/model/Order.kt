@@ -17,6 +17,10 @@ interface Order {
     val createdAt: LocalDateTime
     val modifiedAt: LocalDateTime
 
+    fun remainingSize(): BigDecimal {
+        return size.subtract(filled)
+    }
+
     fun isFilled(): Boolean {
         return filled.compareTo(size) == 0
     }
@@ -24,4 +28,6 @@ interface Order {
     fun withPrice(price: BigDecimal): Order
 
     fun withSize(size: BigDecimal): Order
+
+    fun withFilled(filled: BigDecimal): Order
 }

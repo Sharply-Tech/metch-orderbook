@@ -120,6 +120,7 @@ internal class NaiveOrderBookTest {
             }
 
             override fun handle(event: TradeClosedEvent) {
+                trades.add(event.trade)
                 log.info("Trade closed: " + event.trade.toString())
             }
         })
@@ -129,7 +130,6 @@ internal class NaiveOrderBookTest {
         clients["CEZAR"] = 2
         clients["RUX"] = 3
 
-        // o1
         val bid1 = orderBook.place(
             clients["COSMIN"]!!,
             OrderAction.BID,
@@ -138,7 +138,6 @@ internal class NaiveOrderBookTest {
             OrderType.DAY
         )
 
-        // o2
         val ask1 = orderBook.place(
             clients["COSMIN"]!!,
             OrderAction.ASK,
@@ -148,7 +147,6 @@ internal class NaiveOrderBookTest {
         )
         // bid1 & ask1 should not match because bid1.client == ask1.client
 
-        // o3
         val ask2 = orderBook.place(
             clients["CEZAR"]!!,
             OrderAction.ASK,
@@ -172,12 +170,16 @@ internal class NaiveOrderBookTest {
         val bid2 = orderBook.place(
             clients["RUX"]!!,
             OrderAction.BID,
-            BigDecimal("81"),
+            BigDecimal("91"),
             BigDecimal("120"),
             OrderType.DAY
         )
 
-
+        for (trade in trades) {
+            log.info("trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}), " +
+                    "bid(id${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}), tx size=${trade.size}," +
+                    "tx price=${trade.price}")
+        }
         assertEquals(2, trades.size)
 
         // bid2 & ask1 should match

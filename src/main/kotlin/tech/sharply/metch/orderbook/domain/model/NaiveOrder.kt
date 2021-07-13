@@ -48,7 +48,23 @@ data class NaiveOrder(
             )
         }
 
+        fun withFilled(order: NaiveOrder, filled: BigDecimal): NaiveOrder {
+            return NaiveOrder(
+                order.id,
+                order.clientId,
+                order.action,
+                order.price,
+                order.size,
+                filled,
+                order.type,
+                order.createdAt,
+                order.modifiedAt
+            )
+        }
+
     }
+
+
 
     override fun withPrice(price: BigDecimal): NaiveOrder {
         return withPrice(this, price)
@@ -56,6 +72,10 @@ data class NaiveOrder(
 
     override fun withSize(size: BigDecimal): NaiveOrder {
         return withSize(this, size)
+    }
+
+    override fun withFilled(filled: BigDecimal): NaiveOrder {
+        return withFilled(this, filled)
     }
 
     override fun toString(): String {
@@ -66,6 +86,8 @@ data class NaiveOrder(
                 action: $action,
                 price: $price,
                 size: $size,
+                filled: $filled,
+                remaining: ${remainingSize()},
                 type: $type,
                 createdAt: $createdAt,
                 modifiedAt: $modifiedAt
