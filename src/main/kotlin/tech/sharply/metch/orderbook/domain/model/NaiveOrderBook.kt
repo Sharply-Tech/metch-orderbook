@@ -19,6 +19,7 @@ import javax.validation.constraints.DecimalMin
 /**
  * Naive implementation of an OrderBook
  * Orders are grouped into two TreeSets: bids & asks, and are also indexed by their ids.
+ * WARNING: This implementation is not thread safe!
  */
 class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderBook {
 
@@ -282,12 +283,9 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             .collect(Collectors.toList())
     }
 
-    // TODO!!!
-    // handling events sync is bound to fail in this case because i can't seem to figure out how to orchestrate them to
-    // find another trade after the current one is closed.
-    // having events processed async seems so much more natural
-    // Also: because fill() triggers OrderUpdatedEvent it causes the orderbook the find another trading situation before
-    // the current one is finished processing.
+    /**
+     * handling internal events is performed sync to ensure that when one
+     */
     private fun handle(event: ApplicationEvent) {
         eventsHandler.handle(event)
 
