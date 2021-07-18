@@ -5,6 +5,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	kotlin("jvm") version "1.5.10"
 	kotlin("plugin.spring") version "1.5.10"
+	`maven-publish`
 }
 
 group = "tech.sharply.metch"
@@ -14,6 +15,24 @@ java.sourceCompatibility = JavaVersion.VERSION_16
 configurations {
 	compileOnly {
 		extendsFrom(configurations.annotationProcessor.get())
+	}
+}
+
+publishing {
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/sharply-tech/metch-orderbook")
+			credentials {
+				username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
+				password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_PACKAGES_REPOSITORY_TOKEN")
+			}
+		}
+	}
+	publications {
+		register<MavenPublication>("gpr") {
+			from(components["java"])
+		}
 	}
 }
 

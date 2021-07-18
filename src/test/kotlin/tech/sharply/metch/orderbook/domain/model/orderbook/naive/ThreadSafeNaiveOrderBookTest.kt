@@ -71,6 +71,12 @@ internal class ThreadSafeNaiveOrderBookTest {
     }
 
     @Test
+    fun checkSystemEnvironment() {
+        log.info(System.getenv("GITHUB_USERNAME"))
+        log.info(System.getenv("GITHUB_PACKAGES_REPOSITORY_TOKEN"))
+    }
+
+    @Test
     fun testActiveThreads() {
         val threadTracker = ThreadTracker()
 
