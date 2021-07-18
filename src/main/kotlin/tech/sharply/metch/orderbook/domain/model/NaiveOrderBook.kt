@@ -274,7 +274,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
     }
 
     // TODO!!!
-    // handling events async is bound to fail in this case because i can't seem to figure out how to orchestrate them to
+    // handling events sync is bound to fail in this case because i can't seem to figure out how to orchestrate them to
     // find another trade after the current one is closed.
     // having events processed async seems so much more natural
     // Also: because fill() triggers OrderUpdatedEvent it causes the orderbook the find another trading situation before
