@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
+import org.springframework.util.StopWatch
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
@@ -51,6 +52,9 @@ internal class NaiveOrderBookTest {
 
     @Test
     fun placeMany() {
+        val stopWatch = StopWatch()
+        stopWatch.start()
+
         val clients = 1..5
         for (i in 1..1_000) {
             orderBook.place(
@@ -61,6 +65,9 @@ internal class NaiveOrderBookTest {
                 generateOrderType()
             )
         }
+
+        stopWatch.stop()
+        log.info("Time effort millis: " + stopWatch.lastTaskTimeMillis)
     }
 
     @Test
