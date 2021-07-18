@@ -37,6 +37,10 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             oppositeOrders = bidOrders
         }
 
+        if (oppositeOrders.isEmpty()) {
+            return null
+        }
+
         var match: Order? = null
 
         for (possibleMatch in oppositeOrders) {
@@ -57,6 +61,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
                 continue
             }
             match = possibleMatch
+            break
         }
 
         if (match == null) {
@@ -75,19 +80,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
      * If the orders are not compatible then an appropriate {@link IllegalArgumentException} is thrown.
      */
     private fun processTrade(bid: Order, ask: Order): Trade {
-        // check the bid exists
-//        val bid = ordersById[bidId]
-//        if (bid == null || bid.action != OrderAction.BID) {
-//            throw IllegalArgumentException("No bid found for id: $bidId")
-//        }
-//
-//        // check the ask exists
-//        val ask = ordersById[askId]
-//        if (ask == null || ask.action != OrderAction.BID) {
-//            throw IllegalArgumentException("No ask found for id: $askId")
-//        }
-
-        // check they are compatible
+        // check the orders are compatible
         if (bid.price < ask.price) {
             throw IllegalArgumentException("bid.price < ask.price")
         }
@@ -101,6 +94,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         var bidFilled = false
         var askFilled = false
 
+        // bid fully filled
         if (bid.remainingSize() <= tradeSize) {
             // remove the bid order
             ordersById.remove(bid.id)
@@ -109,6 +103,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             // fully traded
 //            eventsPublisher.publishEvent(OrderClosedEvent(this, bid, trade))
         }
+        // ask fully filled
         if (ask.remainingSize() <= tradeSize) {
             // remove the ask order
             ordersById.remove(ask.id)
@@ -116,16 +111,19 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             askFilled = true
         }
 
+        var remainingBid: NaiveOrder? = null;
+        // bid partially filled
         if (!bidFilled) {
-            this.fill(bid.id, tradeSize)
+            remainingBid = fill(bid.id, tradeSize)
         }
+        var remainingAsk: NaiveOrder? = null
+        // ask partially filled
         if (!askFilled) {
-            this.fill(ask.id, tradeSize)
+            remainingAsk = fill(ask.id, tradeSize)
         }
 
-//        val tradePrice = if (bid.modifiedAt.isBefore(ask.modifiedAt)) bid.price else ask.price
+        // the price of the trade is the price of the initiator order
         val tradePrice = if (bid.modifiedAt.isBefore(ask.modifiedAt)) bid.price else ask.price
-
 
         val trade = NaiveTrade(
             bid,
@@ -137,6 +135,15 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         // emit the event
         handle(TradeClosedEvent(this, trade))
+
+        // emit event that order was updated and also will trigger finding the next match
+        if (remainingBid != null) {
+//            this.tryMatch(remainingBid)
+            handle(OrderUpdatedEvent(this, remainingBid))
+        } else if (remainingAsk != null) {
+//            this.tryMatch(remainingAsk)
+            handle(OrderUpdatedEvent(this, remainingAsk))
+        }
 
         return trade
     }
@@ -184,50 +191,52 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
             return null
         }
 
-        val order = ordersById[orderId]!!
+        val initialOrder = ordersById[orderId]!!
 
-        val updatedOrder = order.withPrice(price)
+        val updatedOrder = initialOrder.withPrice(price)
             .withSize(size)
 
-        ordersById[order.id] = updatedOrder
+        ordersById[initialOrder.id] = updatedOrder
         if (updatedOrder.action == OrderAction.BID) {
-            bidOrders.remove(order)
+            bidOrders.remove(initialOrder)
             bidOrders.add(updatedOrder)
         } else {
-            askOrders.remove(order)
+            askOrders.remove(initialOrder)
             askOrders.add(updatedOrder)
         }
 
-        handle(OrderUpdatedEvent(this, order))
+        handle(OrderUpdatedEvent(this, updatedOrder))
 
         return updatedOrder
     }
 
-    private fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): Order? {
+    private fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): NaiveOrder? {
         if (!ordersById.containsKey(orderId)) {
             return null
         }
 
-        val order = ordersById[orderId]!!
+        val initialOrder = ordersById[orderId]!!
 
-        if (order.remainingSize() < by) {
-            throw IllegalArgumentException("Can only fill order: $orderId by ${order.remainingSize()}")
+        if (initialOrder.remainingSize() < by) {
+            throw IllegalArgumentException("Can only fill order: $orderId by ${initialOrder.remainingSize()}")
         }
 
-        val updatedOrder = order.withFilled(order.filled.add(by))
+        val updatedOrder = initialOrder.withFilled(initialOrder.filled.add(by))
 
-        ordersById[order.id] = updatedOrder
+        ordersById[initialOrder.id] = updatedOrder
         if (updatedOrder.action == OrderAction.BID) {
-            bidOrders.remove(order)
+            bidOrders.remove(initialOrder)
             bidOrders.add(updatedOrder)
         } else {
-            askOrders.remove(order)
+            askOrders.remove(initialOrder)
             askOrders.add(updatedOrder)
         }
 
-        handle(OrderUpdatedEvent(this, order))
+        // The OrderUpdatedEvent is not emitted here to not trigger finding the next match before the current one
+        // is emitted. It will cause incorrect final trades order.
+//        handle(OrderUpdatedEvent(this, updatedOrder))
 
-        return updatedOrder
+        return updatedOrder as NaiveOrder
     }
 
     /**

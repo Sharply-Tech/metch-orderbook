@@ -2,6 +2,7 @@ package tech.sharply.metch.orderbook.domain.model
 
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
@@ -121,7 +122,6 @@ internal class NaiveOrderBookTest {
 
             override fun handle(event: TradeClosedEvent) {
                 trades.add(event.trade)
-                log.info("Trade closed: " + event.trade.toString())
             }
         })
 
@@ -180,9 +180,9 @@ internal class NaiveOrderBookTest {
         // bid5 & ask4 should match tradeSize = 20, bid.filled = true, ask.filled = true
 
         for (trade in trades) {
-            log.info("trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}), " +
-                    "bid(id=${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}), tx size=${trade.size}," +
-                    "tx price=${trade.price}")
+            log.info("trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}, client=${getKeyByValue(clients, trade.ask.clientId)}), " +
+                    "bid(id=${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}, client=${getKeyByValue(clients, trade.bid.clientId)}), " +
+                    "tx size=${trade.size}, tx price=${trade.price}")
         }
         assertEquals(3, trades.size)
 
@@ -191,19 +191,30 @@ internal class NaiveOrderBookTest {
         Assertions.assertNotNull(firstTrade)
         assertEquals(bid1.id, firstTrade.bid.id)
         assertEquals(ask4.id, firstTrade.ask.id)
+        assertTrue(firstTrade.size.compareTo(BigDecimal.valueOf(100)) == 0)
 
-        // bid5 & ask1
+        // bid5 & ask2
         val secondTrade: Trade = trades[1]
         Assertions.assertNotNull(secondTrade)
         assertEquals(bid5.id, secondTrade.bid.id)
         assertEquals(ask2.id, secondTrade.ask.id)
+        assertTrue(secondTrade.size.compareTo(BigDecimal.valueOf(100)) == 0)
 
         // bid5 & ask4
         val thirdTrade: Trade = trades[2]
         Assertions.assertNotNull(thirdTrade)
         assertEquals(bid5.id, thirdTrade.bid.id)
         assertEquals(ask4.id, thirdTrade.ask.id)
+        assertTrue(thirdTrade.size.compareTo(BigDecimal.valueOf(20)) == 0)
     }
 
     // TODO: Implement JMH benchmarks
+
+    private fun getKeyByValue(map: Map<String, Long>, value: Long): String? {
+        val matchingKeys = map.filterValues { it == value }.keys
+        if (matchingKeys.isEmpty()) {
+            return null
+        }
+        return matchingKeys.first()
+    }
 }
