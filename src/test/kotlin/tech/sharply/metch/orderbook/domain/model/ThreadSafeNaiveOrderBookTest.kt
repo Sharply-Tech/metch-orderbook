@@ -1,9 +1,12 @@
 package tech.sharply.metch.orderbook.domain.model
 
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.util.StopWatch
+import tech.sharply.metch.orderbook.domain.model.async.ThreadSafeNaiveOrderBook
+import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType
@@ -21,7 +24,6 @@ internal class ThreadSafeNaiveOrderBookTest {
 
     @Test
     fun place() {
-
         val order = orderBook.place(1, OrderAction.BID, BigDecimal("25"), BigDecimal("100"), OrderType.DAY)
             .get()
 
@@ -64,5 +66,46 @@ internal class ThreadSafeNaiveOrderBookTest {
 
         stopWatch.stop()
         log.info("Time effort millis: " + stopWatch.lastTaskTimeMillis)
+
+        // log active threads
+        log.info(orderBook.getThreadTracker().threadsDescription)
+    }
+
+    @Test
+    fun testActiveThreads() {
+        val threadTracker = ThreadTracker()
+
+        val ordersCount = 1000
+        val clients = 1..5
+
+        val callingExecutor = Executors.newFixedThreadPool(10)
+
+        val countDown = CountDownLatch(ordersCount)
+
+        for (i in 1..ordersCount) {
+            callingExecutor.submit {
+                // track calling threads
+                threadTracker.track("calling-place")
+
+                orderBook.place(
+                    clients.random().toLong(),
+                    generateOrderAction(),
+                    generateBigDecimal(),
+                    generateBigDecimal(),
+                    generateOrderType()
+                ).get()
+                countDown.countDown()
+            }
+        }
+
+        countDown.await()
+
+        assertEquals(1, orderBook.getThreadTracker().getThreads("place").size)
+
+        // print calling threads
+        log.info("Calling threads: " + threadTracker.threadsDescription)
+        // print execution threads
+        log.info("Execution threads: " + orderBook.getThreadTracker().threadsDescription)
+
     }
 }

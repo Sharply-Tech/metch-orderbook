@@ -6,6 +6,7 @@ import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
 import tech.sharply.metch.orderbook.domain.events.base.OrderEvent
+import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import tech.sharply.metch.orderbook.domain.model.types.OrdersComparator
@@ -21,7 +22,8 @@ import javax.validation.constraints.DecimalMin
  * Orders are grouped into two TreeSets: bids & asks, and are also indexed by their ids.
  * WARNING: This implementation is not thread safe!
  */
-class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderBook {
+class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
+                     private val threadTracker: ThreadTracker?) : OrderBook {
 
     private val bidOrders = TreeSet(OrdersComparator(OrderAction.BID))
     private val askOrders = TreeSet(OrdersComparator(OrderAction.ASK))
@@ -181,6 +183,8 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         handle(OrderPlacedEvent(this, order))
 
+        threadTracker?.track("place")
+
         return order
     }
 
@@ -207,6 +211,8 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         }
 
         handle(OrderUpdatedEvent(this, updatedOrder))
+
+        threadTracker?.track("update")
 
         return updatedOrder
     }
@@ -237,6 +243,8 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
         // is emitted. It will cause incorrect final trades order.
 //        handle(OrderUpdatedEvent(this, updatedOrder))
 
+        threadTracker?.track("fill")
+
         return updatedOrder as NaiveOrder
     }
 
@@ -260,14 +268,20 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
 
         handle(OrderCancelledEvent(this, order))
 
+        threadTracker?.track("cancel")
+
         return order
     }
 
     override fun findById(orderId: Long): Order? {
+        threadTracker?.track("findById")
+
         return ordersById[orderId]
     }
 
     override fun findBestBids(count: Long): Collection<Order> {
+        threadTracker?.track("findBestBids")
+
         return bidOrders.stream()
             .filter { order -> order != null }
             .map { order -> order!! }
@@ -276,6 +290,8 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler) : OrderB
     }
 
     override fun findBestAsks(count: Long): Collection<Order> {
+        threadTracker?.track("findBestAsks")
+
         return askOrders.stream()
             .filter { order -> order != null }
             .map { order -> order!! }

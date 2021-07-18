@@ -38,7 +38,7 @@ internal class NaiveOrderBookTest {
         override fun handle(event: TradeClosedEvent) {
             log.info("Trade closed: " + event.trade.toString())
         }
-    })
+    }, null)
 
     @BeforeEach
     fun init() {
@@ -86,7 +86,7 @@ internal class NaiveOrderBookTest {
             override fun handle(event: TradeClosedEvent) {
                 trades.add(event.trade)
             }
-        })
+        }, null)
 
         val bid1 = orderBook.place(
             1,
@@ -131,7 +131,7 @@ internal class NaiveOrderBookTest {
             override fun handle(event: TradeClosedEvent) {
                 trades.add(event.trade)
             }
-        })
+        }, null)
 
         val clients = HashMap<String, Long>()
         clients["COSMIN"] = 1
