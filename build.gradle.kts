@@ -61,6 +61,7 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+// region Version Increment
 data class Version(
     val major: Int,
     val minor: Int,
@@ -134,3 +135,4 @@ tasks.create("bumpMajor") {
         buildFile.writeText(buildFileContent)
     }
 }
+// endregion
