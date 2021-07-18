@@ -109,6 +109,7 @@ internal class NaiveOrderBookTest {
 
     @Test
     fun givenSetOfOrders_testMatchesAreCorrectlyIdentifiedAndClosed() {
+//        TODO: Check trade prices are correct
         val trades = ArrayList<Trade>()
         this.orderBook = NaiveOrderBook(object : OrderBookEventsHandler {
             override fun handle(event: OrderPlacedEvent) {
@@ -180,9 +181,21 @@ internal class NaiveOrderBookTest {
         // bid5 & ask4 should match tradeSize = 20, bid.filled = true, ask.filled = true
 
         for (trade in trades) {
-            log.info("trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}, client=${getKeyByValue(clients, trade.ask.clientId)}), " +
-                    "bid(id=${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}, client=${getKeyByValue(clients, trade.bid.clientId)}), " +
-                    "tx size=${trade.size}, tx price=${trade.price}")
+            log.info(
+                "trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}, client=${
+                    getKeyByValue(
+                        clients,
+                        trade.ask.clientId
+                    )
+                }), " +
+                        "bid(id=${trade.bid.id}, price=${trade.bid.price}, size=${trade.bid.size}, client=${
+                            getKeyByValue(
+                                clients,
+                                trade.bid.clientId
+                            )
+                        }), " +
+                        "tx size=${trade.size}, tx price=${trade.price}"
+            )
         }
         assertEquals(3, trades.size)
 
