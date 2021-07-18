@@ -1,13 +1,14 @@
-package tech.sharply.metch.orderbook.domain.model.async
+package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
-import tech.sharply.metch.orderbook.domain.model.NaiveOrderBook
-import tech.sharply.metch.orderbook.domain.model.Order
-import tech.sharply.metch.orderbook.domain.model.OrderBook
-import tech.sharply.metch.orderbook.domain.model.OrderBookEventsHandler
+import tech.sharply.metch.orderbook.domain.model.orderbook.naive.NaiveOrderBook
+import tech.sharply.metch.orderbook.domain.model.orderbook.Order
+import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBook
+import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBookEventsHandler
+import tech.sharply.metch.orderbook.domain.model.orderbook.async.AsyncOrderBook
 import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType

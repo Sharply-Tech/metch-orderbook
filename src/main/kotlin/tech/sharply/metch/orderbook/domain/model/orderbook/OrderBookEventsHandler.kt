@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook
 
 import org.springframework.context.ApplicationEvent
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent

@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook
 
 import java.math.BigDecimal
 import java.time.LocalDateTime

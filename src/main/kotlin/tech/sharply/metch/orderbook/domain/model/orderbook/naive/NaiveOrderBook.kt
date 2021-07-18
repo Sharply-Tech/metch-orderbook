@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 
 import org.springframework.context.ApplicationEvent
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
@@ -6,6 +6,10 @@ import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
 import tech.sharply.metch.orderbook.domain.events.base.OrderEvent
+import tech.sharply.metch.orderbook.domain.model.orderbook.Order
+import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBook
+import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBookEventsHandler
+import tech.sharply.metch.orderbook.domain.model.orderbook.Trade
 import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType

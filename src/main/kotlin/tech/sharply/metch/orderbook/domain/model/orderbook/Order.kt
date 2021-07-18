@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook
 
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
 import tech.sharply.metch.orderbook.domain.model.types.OrderType

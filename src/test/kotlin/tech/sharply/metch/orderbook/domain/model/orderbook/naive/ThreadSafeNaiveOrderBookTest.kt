@@ -1,11 +1,10 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.slf4j.LoggerFactory
 import org.springframework.util.StopWatch
-import tech.sharply.metch.orderbook.domain.model.async.ThreadSafeNaiveOrderBook
 import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction

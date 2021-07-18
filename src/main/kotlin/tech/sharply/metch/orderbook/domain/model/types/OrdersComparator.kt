@@ -1,6 +1,6 @@
 package tech.sharply.metch.orderbook.domain.model.types
 
-import tech.sharply.metch.orderbook.domain.model.Order
+import tech.sharply.metch.orderbook.domain.model.orderbook.Order
 import java.lang.NullPointerException
 import java.util.Comparator
 

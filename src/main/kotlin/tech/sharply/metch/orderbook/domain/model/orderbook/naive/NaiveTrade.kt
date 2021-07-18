@@ -1,5 +1,7 @@
-package tech.sharply.metch.orderbook.domain.model
+package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 
+import tech.sharply.metch.orderbook.domain.model.orderbook.Order
+import tech.sharply.metch.orderbook.domain.model.orderbook.Trade
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
