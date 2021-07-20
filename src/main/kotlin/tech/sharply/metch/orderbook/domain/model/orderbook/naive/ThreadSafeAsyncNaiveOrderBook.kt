@@ -22,7 +22,7 @@ import javax.validation.constraints.DecimalMin
  * writes to a single thread. </br>
  * Multiple threads can read data without affecting thread safety.
  */
-class ThreadSafeNaiveOrderBook : AsyncOrderBook {
+class ThreadSafeAsyncNaiveOrderBook : AsyncOrderBook {
 
     private val threadTracker = ThreadTracker()
 

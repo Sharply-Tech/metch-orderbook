@@ -16,10 +16,10 @@ import java.math.BigDecimal
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
-internal class ThreadSafeNaiveOrderBookTest {
+internal class ThreadSafeAsyncNaiveOrderBookTest {
 
     private val log = LoggerFactory.getLogger(javaClass)
-    private val orderBook = ThreadSafeNaiveOrderBook()
+    private val orderBook = ThreadSafeAsyncNaiveOrderBook()
 
     @Test
     fun place() {
@@ -34,7 +34,7 @@ internal class ThreadSafeNaiveOrderBookTest {
      * Clients stick to one order action to simulate a real scenario better.
      */
     @Test
-    fun placeManyOrders_differentThreads() {
+    fun placeManyOrders_differentThreads_benchmarkPerformance() {
         val stopWatch = StopWatch()
 
         val ordersCount = 20_000
@@ -49,7 +49,7 @@ internal class ThreadSafeNaiveOrderBookTest {
 
         for (i in 1..ordersCount) {
             threadPool.submit {
-                val orderAction = generateOrderAction();
+                val orderAction = generateOrderAction()
                 orderBook.place(
                     if (orderAction == OrderAction.ASK) askClients.random().toLong() else bidClients.random().toLong(),
                     generateOrderAction(),
@@ -68,12 +68,6 @@ internal class ThreadSafeNaiveOrderBookTest {
 
         // log active threads
         log.info(orderBook.getThreadTracker().threadsDescription)
-    }
-
-    @Test
-    fun checkSystemEnvironment() {
-        log.info(System.getenv("GITHUB_USERNAME"))
-        log.info(System.getenv("GITHUB_PACKAGES_REPOSITORY_TOKEN"))
     }
 
     @Test
@@ -111,6 +105,5 @@ internal class ThreadSafeNaiveOrderBookTest {
         log.info("Calling threads: " + threadTracker.threadsDescription)
         // print execution threads
         log.info("Execution threads: " + orderBook.getThreadTracker().threadsDescription)
-
     }
 }

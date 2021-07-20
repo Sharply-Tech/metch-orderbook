@@ -22,7 +22,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/sharply-tech/metch-orderbook")
+            url = uri("https://maven.pkg.github.com/Sharply-Tech/metch-orderbook")
             credentials {
                 username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USERNAME")
                 password =
