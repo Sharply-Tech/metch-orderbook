@@ -6,8 +6,8 @@ plugins {
 }
 
 group = "tech.sharply.metch"
-version = "0.4.0"
-java.sourceCompatibility = JavaVersion.VERSION_16
+version = "0.5.0"
+java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {
     compileOnly {
@@ -42,6 +42,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
 }
@@ -49,7 +50,7 @@ dependencies {
 tasks.withType<KotlinCompile> {
     kotlinOptions {
         freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "16"
+        jvmTarget = "1.8"
     }
 }
 

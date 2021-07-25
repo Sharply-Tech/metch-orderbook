@@ -1,4 +1,4 @@
-package tech.sharply.metch.orderbook.base
+package tech.sharply.metch.orderbook.domain.model.performance
 
 import java.time.Duration
 import java.time.LocalDateTime

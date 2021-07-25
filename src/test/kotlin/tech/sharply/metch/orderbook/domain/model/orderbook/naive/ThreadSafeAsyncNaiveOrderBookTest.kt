@@ -3,7 +3,7 @@ package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import tech.sharply.metch.orderbook.base.StopWatch
+import tech.sharply.metch.orderbook.domain.model.performance.StopWatch
 import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
@@ -33,9 +33,10 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
      */
     @Test
     fun placeManyOrders_differentThreads_benchmarkPerformance() {
+        val threadTracker = ThreadTracker()
         val stopWatch = StopWatch()
-
-        val ordersCount = 20_000
+//        TODO: The countdown latch seems to be having a lot of trouble with bigger numbers
+        val ordersCount = 5000
 
         val threadPool = Executors.newFixedThreadPool(10)
 
@@ -56,6 +57,8 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
                     generateOrderType()
                 ).get()
                 countDown.countDown()
+                // track calling threads
+                threadTracker.track("calling-place")
             }
         }
 
@@ -63,8 +66,10 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
 
         println("Time effort millis: " + stopWatch.stop().toMillis())
 
-        // log active threads
-        println(orderBook.getThreadTracker().threadsDescription)
+        // print calling threads
+        println("Calling threads: " + threadTracker.threadsDescription)
+        // print execution threads
+        println("Execution threads: " + orderBook.getThreadTracker().threadsDescription)
     }
 
     @Test
@@ -80,9 +85,6 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
 
         for (i in 1..ordersCount) {
             callingExecutor.submit {
-                // track calling threads
-                threadTracker.track("calling-place")
-
                 orderBook.place(
                     clients.random().toLong(),
                     generateOrderAction(),
@@ -91,6 +93,8 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
                     generateOrderType()
                 ).get()
                 countDown.countDown()
+                // track calling threads
+                threadTracker.track("calling-place")
             }
         }
 

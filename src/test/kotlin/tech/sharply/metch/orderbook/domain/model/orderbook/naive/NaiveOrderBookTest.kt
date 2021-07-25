@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import tech.sharply.metch.orderbook.base.StopWatch
+import tech.sharply.metch.orderbook.domain.model.performance.StopWatch
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
