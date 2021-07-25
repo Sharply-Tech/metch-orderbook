@@ -4,7 +4,6 @@ import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
-import tech.sharply.metch.orderbook.domain.model.orderbook.naive.NaiveOrderBook
 import tech.sharply.metch.orderbook.domain.model.orderbook.Order
 import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBook
 import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBookEventsHandler
@@ -15,7 +14,6 @@ import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import java.math.BigDecimal
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import javax.validation.constraints.DecimalMin
 
 /**
  * This order book internally uses the {@link NaiveOrderBook} and ensures thread safety by restricting all
@@ -46,7 +44,7 @@ class ThreadSafeAsyncNaiveOrderBook : AsyncOrderBook {
         clientId: Long,
         action: OrderAction,
         price: BigDecimal,
-        @DecimalMin("0.0000000001") size: BigDecimal,
+        size: BigDecimal,
         type: OrderType
     ): CompletableFuture<Order> {
 //        return executor.submit { orderBook.place(clientId, action, price, size, type) } as Future<Order>

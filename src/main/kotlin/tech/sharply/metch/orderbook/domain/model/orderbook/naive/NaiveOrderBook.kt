@@ -1,11 +1,10 @@
 package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 
-import org.springframework.context.ApplicationEvent
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
-import tech.sharply.metch.orderbook.domain.events.base.OrderEvent
+import tech.sharply.metch.orderbook.domain.events.base.OrderBookEvent
 import tech.sharply.metch.orderbook.domain.model.orderbook.Order
 import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBook
 import tech.sharply.metch.orderbook.domain.model.orderbook.OrderBookEventsHandler
@@ -19,15 +18,16 @@ import java.time.LocalDateTime
 import java.util.*
 import java.util.concurrent.atomic.AtomicLong
 import java.util.stream.Collectors
-import javax.validation.constraints.DecimalMin
 
 /**
  * Naive implementation of an OrderBook
  * Orders are grouped into two TreeSets: bids & asks, and are also indexed by their ids.
  * WARNING: This implementation is not thread safe!
  */
-class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
-                     private val threadTracker: ThreadTracker?) : OrderBook {
+class NaiveOrderBook(
+    private val eventsHandler: OrderBookEventsHandler,
+    private val threadTracker: ThreadTracker?
+) : OrderBook {
 
     private val bidOrders = TreeSet<NaiveOrder>(OrdersComparator(OrderAction.BID))
     private val askOrders = TreeSet<NaiveOrder>(OrdersComparator(OrderAction.ASK))
@@ -163,9 +163,13 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
         clientId: Long,
         action: OrderAction,
         price: BigDecimal,
-        @DecimalMin("0.0000000001") size: BigDecimal,
+        size: BigDecimal,
         type: OrderType
     ): Order {
+        if (size < BigDecimal("0.0000000001")) {
+            throw IllegalArgumentException("Size cannot be smaller than: 0.0000000001!");
+        }
+
         val order = NaiveOrder(
             orderIdSequence.getAndIncrement(),
             clientId,
@@ -195,7 +199,11 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
     /**
      * Allows the order's price and size to be updated.
      */
-    override fun update(orderId: Long, price: BigDecimal, @DecimalMin("0.0000000001") size: BigDecimal): Order? {
+    override fun update(orderId: Long, price: BigDecimal, size: BigDecimal): Order? {
+        if (size < BigDecimal("0.0000000001")) {
+            throw IllegalArgumentException("Size cannot be smaller than: 0.0000000001!");
+        }
+
         if (!ordersById.containsKey(orderId)) {
             return null
         }
@@ -221,7 +229,11 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
         return updatedOrder
     }
 
-    private fun fill(orderId: Long, @DecimalMin("0.0000000001") by: BigDecimal): NaiveOrder? {
+    private fun fill(orderId: Long, by: BigDecimal): NaiveOrder? {
+        if (by < BigDecimal("0.0000000001")) {
+            throw IllegalArgumentException("Size cannot be smaller than: 0.0000000001!");
+        }
+
         if (!ordersById.containsKey(orderId)) {
             return null
         }
@@ -306,11 +318,13 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
     /**
      * handling internal events is performed sync to ensure that when one
      */
-    private fun handle(event: ApplicationEvent) {
+    private fun handle(event: OrderBookEvent) {
         eventsHandler.handle(event)
 
         // trigger try match on order events
-        if (event is OrderEvent && event !is OrderCancelledEvent) {
+        if (event is OrderPlacedEvent) {
+            this.tryMatch(event.order as NaiveOrder)
+        } else if (event is OrderUpdatedEvent) {
             this.tryMatch(event.order as NaiveOrder)
         }
     }

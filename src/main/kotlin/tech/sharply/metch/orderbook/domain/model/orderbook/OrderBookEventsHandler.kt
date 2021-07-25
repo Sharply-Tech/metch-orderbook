@@ -1,10 +1,10 @@
 package tech.sharply.metch.orderbook.domain.model.orderbook
 
-import org.springframework.context.ApplicationEvent
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
 import tech.sharply.metch.orderbook.domain.events.TradeClosedEvent
+import tech.sharply.metch.orderbook.domain.events.base.OrderBookEvent
 
 interface OrderBookEventsHandler {
 
@@ -16,7 +16,7 @@ interface OrderBookEventsHandler {
 
     fun handle(event: TradeClosedEvent)
 
-    fun handle(event: ApplicationEvent) {
+    fun handle(event: OrderBookEvent) {
         when (event) {
             is OrderPlacedEvent -> return handle(event)
             is OrderUpdatedEvent -> return handle(event)

@@ -5,7 +5,6 @@ import tech.sharply.metch.orderbook.domain.model.types.OrderType
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*
-import javax.validation.constraints.Min
 
 fun generateOrderAction(): OrderAction {
     val rnd = Random()
@@ -36,7 +35,10 @@ fun generateLong(bound: Int): Long {
     return rnd.nextInt(bound).toLong()
 }
 
-fun generateBigDecimal(@Min(1) bound: Int): BigDecimal {
+fun generateBigDecimal(bound: Int): BigDecimal {
+    if (bound < 1) {
+        throw IllegalArgumentException("Bound cannot be < 1");
+    }
     val rnd = Random()
 
     return BigDecimal.valueOf(rnd.nextDouble() * bound)

@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
-import org.springframework.util.StopWatch
+import tech.sharply.metch.orderbook.base.StopWatch
 import tech.sharply.metch.orderbook.domain.events.OrderCancelledEvent
 import tech.sharply.metch.orderbook.domain.events.OrderPlacedEvent
 import tech.sharply.metch.orderbook.domain.events.OrderUpdatedEvent
@@ -23,8 +22,6 @@ import java.math.BigDecimal
 
 internal class NaiveOrderBookTest {
 
-    private val log = LoggerFactory.getLogger(javaClass)
-
     private var orderBook: OrderBook = NaiveOrderBook(object : OrderBookEventsHandler {
         override fun handle(event: OrderPlacedEvent) {
 //            log.info("Order created: " + event.order.toString())
@@ -39,7 +36,7 @@ internal class NaiveOrderBookTest {
         }
 
         override fun handle(event: TradeClosedEvent) {
-            log.info("Trade closed: " + event.trade.toString())
+            println("Trade closed: " + event.trade.toString())
         }
     }, null)
 
@@ -69,8 +66,7 @@ internal class NaiveOrderBookTest {
             )
         }
 
-        stopWatch.stop()
-        log.info("Time effort millis: " + stopWatch.lastTaskTimeMillis)
+        println("Time effort millis: " + stopWatch.stop().toMillis())
     }
 
     @Test
@@ -191,7 +187,7 @@ internal class NaiveOrderBookTest {
         // bid5 & ask4 should match tradeSize = 20, bid.filled = true, ask.filled = true
 
         for (trade in trades) {
-            log.info(
+            println(
                 "trade ask(id=${trade.ask.id}, price=${trade.ask.price}, size=${trade.ask.size}, client=${
                     getKeyByValue(
                         clients,

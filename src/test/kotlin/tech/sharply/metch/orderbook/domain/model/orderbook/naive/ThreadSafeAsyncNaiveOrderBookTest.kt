@@ -3,8 +3,7 @@ package tech.sharply.metch.orderbook.domain.model.orderbook.naive
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import org.slf4j.LoggerFactory
-import org.springframework.util.StopWatch
+import tech.sharply.metch.orderbook.base.StopWatch
 import tech.sharply.metch.orderbook.domain.model.performance.ThreadTracker
 
 import tech.sharply.metch.orderbook.domain.model.types.OrderAction
@@ -18,7 +17,6 @@ import java.util.concurrent.Executors
 
 internal class ThreadSafeAsyncNaiveOrderBookTest {
 
-    private val log = LoggerFactory.getLogger(javaClass)
     private val orderBook = ThreadSafeAsyncNaiveOrderBook()
 
     @Test
@@ -63,11 +61,10 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
 
         countDown.await()
 
-        stopWatch.stop()
-        log.info("Time effort millis: " + stopWatch.lastTaskTimeMillis)
+        println("Time effort millis: " + stopWatch.stop().toMillis())
 
         // log active threads
-        log.info(orderBook.getThreadTracker().threadsDescription)
+        println(orderBook.getThreadTracker().threadsDescription)
     }
 
     @Test
@@ -102,8 +99,8 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
         assertEquals(1, orderBook.getThreadTracker().getThreads("place").size)
 
         // print calling threads
-        log.info("Calling threads: " + threadTracker.threadsDescription)
+        println("Calling threads: " + threadTracker.threadsDescription)
         // print execution threads
-        log.info("Execution threads: " + orderBook.getThreadTracker().threadsDescription)
+        println("Execution threads: " + orderBook.getThreadTracker().threadsDescription)
     }
 }
