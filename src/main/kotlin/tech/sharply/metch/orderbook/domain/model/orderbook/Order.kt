@@ -12,18 +12,9 @@ interface Order {
     val action: OrderAction
     val price: BigDecimal
     val size: BigDecimal
-    val filled: BigDecimal
     val type: OrderType
     val createdAt: LocalDateTime
     val modifiedAt: LocalDateTime
-
-    fun remainingSize(): BigDecimal {
-        return size.subtract(filled)
-    }
-
-    fun isFilled(): Boolean {
-        return filled.compareTo(size) == 0
-    }
 
     fun withPrice(price: BigDecimal): Order
 

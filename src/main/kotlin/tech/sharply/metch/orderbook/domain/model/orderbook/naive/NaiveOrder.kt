@@ -13,7 +13,7 @@ data class NaiveOrder(
     override val action: OrderAction,
     override val price: BigDecimal,
     override val size: BigDecimal,
-    override val filled: BigDecimal,
+    val filled: BigDecimal,
     override val type: OrderType,
     override val createdAt: LocalDateTime,
     override val modifiedAt: LocalDateTime,
@@ -65,7 +65,13 @@ data class NaiveOrder(
 
     }
 
+    fun isFilled(): Boolean {
+        return filled.compareTo(size) == 0
+    }
 
+    fun remainingSize(): BigDecimal {
+        return size.subtract(filled)
+    }
 
     override fun withPrice(price: BigDecimal): NaiveOrder {
         return withPrice(this, price)

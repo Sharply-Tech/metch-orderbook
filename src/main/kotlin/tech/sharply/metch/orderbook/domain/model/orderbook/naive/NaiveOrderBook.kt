@@ -29,9 +29,9 @@ import javax.validation.constraints.DecimalMin
 class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
                      private val threadTracker: ThreadTracker?) : OrderBook {
 
-    private val bidOrders = TreeSet(OrdersComparator(OrderAction.BID))
-    private val askOrders = TreeSet(OrdersComparator(OrderAction.ASK))
-    private val ordersById = HashMap<Long, Order>()
+    private val bidOrders = TreeSet<NaiveOrder>(OrdersComparator(OrderAction.BID))
+    private val askOrders = TreeSet<NaiveOrder>(OrdersComparator(OrderAction.ASK))
+    private val ordersById = HashMap<Long, NaiveOrder>()
 
     private val orderIdSequence = AtomicLong(1)
 
@@ -39,7 +39,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
      * Checks if the order can be matched instantly, and, if so, returns the trade
      */
     private fun tryMatch(order: NaiveOrder): Trade? {
-        var oppositeOrders: Set<Order?> = askOrders
+        var oppositeOrders: Set<NaiveOrder?> = askOrders
         if (order.action == OrderAction.ASK) {
             oppositeOrders = bidOrders
         }
@@ -48,7 +48,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
             return null
         }
 
-        var match: Order? = null
+        var match: NaiveOrder? = null
 
         for (possibleMatch in oppositeOrders) {
             if (possibleMatch == null) {
@@ -86,7 +86,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
      * Processes a trade formed by two orders.
      * If the orders are not compatible then an appropriate {@link IllegalArgumentException} is thrown.
      */
-    private fun processTrade(bid: Order, ask: Order): Trade {
+    private fun processTrade(bid: NaiveOrder, ask: NaiveOrder): Trade {
         // check the orders are compatible
         if (bid.price < ask.price) {
             throw IllegalArgumentException("bid.price < ask.price")
@@ -118,7 +118,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
             askFilled = true
         }
 
-        var remainingBid: NaiveOrder? = null;
+        var remainingBid: NaiveOrder? = null
         // bid partially filled
         if (!bidFilled) {
             remainingBid = fill(bid.id, tradeSize)
@@ -249,7 +249,7 @@ class NaiveOrderBook(private val eventsHandler: OrderBookEventsHandler,
 
         threadTracker?.track("fill")
 
-        return updatedOrder as NaiveOrder
+        return updatedOrder
     }
 
     /**
