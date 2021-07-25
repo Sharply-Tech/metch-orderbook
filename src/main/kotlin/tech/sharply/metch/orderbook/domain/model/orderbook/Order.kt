@@ -16,9 +16,4 @@ interface Order {
     val createdAt: LocalDateTime
     val modifiedAt: LocalDateTime
 
-    fun withPrice(price: BigDecimal): Order
-
-    fun withSize(size: BigDecimal): Order
-
-    fun withFilled(filled: BigDecimal): Order
 }

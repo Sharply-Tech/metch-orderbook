@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "tech.sharply.metch"
-version = "0.5.0"
+version = "0.5.1"
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
 configurations {

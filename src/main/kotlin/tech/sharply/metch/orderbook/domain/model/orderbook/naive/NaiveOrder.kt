@@ -73,15 +73,15 @@ data class NaiveOrder(
         return size.subtract(filled)
     }
 
-    override fun withPrice(price: BigDecimal): NaiveOrder {
+    fun withPrice(price: BigDecimal): NaiveOrder {
         return withPrice(this, price)
     }
 
-    override fun withSize(size: BigDecimal): NaiveOrder {
+    fun withSize(size: BigDecimal): NaiveOrder {
         return withSize(this, size)
     }
 
-    override fun withFilled(filled: BigDecimal): NaiveOrder {
+    fun withFilled(filled: BigDecimal): NaiveOrder {
         return withFilled(this, filled)
     }
 

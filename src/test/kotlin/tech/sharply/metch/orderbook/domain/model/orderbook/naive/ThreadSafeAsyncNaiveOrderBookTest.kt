@@ -36,7 +36,7 @@ internal class ThreadSafeAsyncNaiveOrderBookTest {
         val threadTracker = ThreadTracker()
         val stopWatch = StopWatch()
 //        TODO: The countdown latch seems to be having a lot of trouble with bigger numbers
-        val ordersCount = 5000
+        val ordersCount = 1000
 
         val threadPool = Executors.newFixedThreadPool(10)
 
